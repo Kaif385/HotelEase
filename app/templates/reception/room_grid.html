@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Room Status</h3>
+    <a href="{{ url_for('front_desk.create_booking') }}" class="btn btn-primary">+ New Booking</a>
+</div>
+
+<div class="row g-4">
+    {% for room in rooms %}
+    <div class="col-md-3 col-sm-6">
+        <div class="card text-center h-100 border-top-0 border-end-0 border-bottom-0 border-4 
+            {% if room.status == 'available' %}border-success{% elif room.status == 'booked' %}border-danger{% else %}border-warning{% endif %}">
+            <div class="card-body">
+                <h2 class="card-title display-6 fw-bold">{{ room.room_number }}</h2>
+                <p class="text-muted">{{ room.type_name }}</p>
+                <div class="mb-3">
+                    {% if room.status == 'available' %}
+                        <span class="badge bg-success">Available</span>
+                    {% elif room.status == 'booked' %}
+                        <span class="badge bg-danger">Occupied</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Maintenance</span>
+                    {% endif %}
+                </div>
+                <small class="text-muted fw-bold">${{ room.base_price }} / night</small>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

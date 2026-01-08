@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-7">
+            
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h4 class="fw-bold m-0">New Reservation</h4>
+                <a href="{{ url_for('front_desk.room_grid') }}" class="btn btn-outline-secondary btn-sm">Cancel</a>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form method="POST">
+                        
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3 border-bottom pb-2">Guest Information</h6>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Select Guest</label>
+                            <select name="guest_id" class="form-select" required>
+                                <option value="">-- Choose existing guest --</option>
+                                {% for guest in guests %}
+                                    <option value="{{ guest.guest_id }}">{{ guest.full_name }} ({{ guest.phone }})</option>
+                                {% endfor %}
+                            </select>
+                            <div class="mt-2 text-end">
+                                <a href="#" class="small text-primary text-decoration-none fw-bold" onclick="alert('Guest registration functionality coming soon!'); return false;">+ Register New Guest</a>
+                            </div>
+                        </div>
+
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3 border-bottom pb-2">Stay Details</h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Select Room</label>
+                            <select name="room_id" id="roomSelect" class="form-select" required>
+                                <option value="" data-price="0">-- Select Available Room --</option>
+                                {% for room in rooms %}
+                                    <option value="{{ room.room_id }}" data-price="{{ room.base_price }}">
+                                        {{ room.room_number }} - {{ room.name }} (${{ room.base_price }}/night)
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small">Check In</label>
+                                <input type="date" name="check_in" id="checkIn" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small">Check Out</label>
+                                <input type="date" name="check_out" id="checkOut" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="bg-light p-3 rounded mt-2">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small">Price per night:</span>
+                                <span class="fw-bold" id="displayRate">$0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small">Total nights:</span>
+                                <span class="fw-bold" id="displayNights">0</span>
+                            </div>
+                            <div class="border-top my-2"></div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark">ESTIMATED TOTAL:</span>
+                                <h4 class="fw-bold text-primary m-0" id="displayTotal">$0.00</h4>
+                            </div>
+                            
+                            <input type="hidden" name="total_price" id="totalPriceInput">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 mt-4 fw-bold">Confirm Booking</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const roomSelect = document.getElementById('roomSelect');
+        const checkIn = document.getElementById('checkIn');
+        const checkOut = document.getElementById('checkOut');
+        
+        const displayRate = document.getElementById('displayRate');
+        const displayNights = document.getElementById('displayNights');
+        const displayTotal = document.getElementById('displayTotal');
+        const totalPriceInput = document.getElementById('totalPriceInput');
+
+        function calculateTotal() {
+            // 1. Get Price from selected option
+            const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+            const pricePerNight = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+
+            // 2. Calculate Date Difference
+            const d1 = new Date(checkIn.value);
+            const d2 = new Date(checkOut.value);
+
+            let nights = 0;
+            if (checkIn.value && checkOut.value && d2 > d1) {
+                const diffTime = Math.abs(d2 - d1);
+                nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            }
+
+            // 3. Calculate Total
+            const total = pricePerNight * nights;
+
+            // 4. Update UI
+            displayRate.innerText = "$" + pricePerNight.toFixed(2);
+            displayNights.innerText = nights;
+            displayTotal.innerText = "$" + total.toFixed(2);
+            totalPriceInput.value = total; // Set the hidden input value for the backend
+        }
+
+        // Attach listeners
+        roomSelect.addEventListener('change', calculateTotal);
+        checkIn.addEventListener('change', calculateTotal);
+        checkOut.addEventListener('change', calculateTotal);
+    });
+</script>
+{% endblock %}

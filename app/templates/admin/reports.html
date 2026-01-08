@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold text-dark">Business Intelligence Reports</h4>
+    <button class="btn btn-outline-primary btn-sm" type="button" onclick="alert('Print functionality coming soon!')"><i class="fas fa-print"></i> Print Report</button>
+</div>
+
+<div class="row g-4">
+    
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white fw-bold border-bottom">
+                <i class="fas fa-crown text-warning me-2"></i> Top VIP Guests
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-light">
+                        <tr><th>Guest</th><th>Spent</th><th>Level</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for guest in vip_guests %}
+                        <tr>
+                            <td>{{ guest.full_name }}</td>
+                            <td class="fw-bold">${{ "{:,.0f}".format(guest.total_lifetime_spent) }}</td>
+                            <td>
+                                {% if guest.vip_status == 'Platinum' %}
+                                    <span class="badge bg-dark text-warning">Platinum</span>
+                                {% elif guest.vip_status == 'Gold' %}
+                                    <span class="badge bg-warning text-dark">Gold</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Silver</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white fw-bold border-bottom">
+                <i class="fas fa-concierge-bell text-primary me-2"></i> High Value Services
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for svc in top_services %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ svc.service_name }}
+                    <span class="badge bg-success rounded-pill">${{ svc.total_revenue }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white fw-bold border-bottom">
+                <i class="fas fa-user-friends text-info me-2"></i> Shift Teams
+            </div>
+            <div class="card-body">
+                {% for pair in shift_buddies %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-light rounded-circle p-2 me-2">
+                        <i class="fas fa-user text-secondary"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">{{ pair.Employee1 }} & {{ pair.Employee2 }}</div>
+                        <div class="small text-muted">{{ pair.shift_time }} Shift</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white fw-bold border-bottom">
+                <i class="fas fa-exclamation-triangle text-danger me-2"></i> Unbooked Room Types
+            </div>
+            <div class="card-body">
+                {% if unused_rooms %}
+                    {% for room in unused_rooms %}
+                    <div class="alert alert-warning mb-2">
+                        <strong>{{ room.name }}</strong> (${{ room.base_price }})
+                        <div class="small">Has zero bookings history. Consider lowering price.</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-success text-center mt-3">All room types are performing well!</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h6 class="fw-bold m-0 text-dark">Room Occupancy View</h6>
+                <p class="small text-muted mb-0">Total Bookings per Room</p>
+            </div>
+            
+            <div class="card-body p-0 scrollable-list">
+                <ul class="list-group list-group-flush">
+                    {% for room in occupancy %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center small">
+                        <span class="fw-bold text-dark">Room #{{ room.room_number }}</span>
+                        <span class="badge bg-primary rounded-pill">
+                            {{ room.total_bookings }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-white fw-bold border-bottom">
+                <i class="fas fa-list text-primary me-2"></i> Service Usage Summary (String Aggregation)
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="bg-light">
+                        <tr><th>Booking ID</th><th>Guest</th><th>Services Used (Comma Separated)</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in service_summary %}
+                        <tr>
+                            <td>#{{ row.booking_id }}</td>
+                            <td>{{ row.full_name }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ row.services_ordered }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

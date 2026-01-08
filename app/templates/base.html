@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelEase Enterprise</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=4">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-layer-group text-primary me-2"></i> HOTELEASE
+        </div>
+
+        <div class="nav-label">Main Menu</div>
+        <a href="{{ url_for('admin.dashboard') }}" class="nav-link">
+            <i class="fas fa-grid-2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('front_desk.room_grid') }}" class="nav-link">
+            <i class="fas fa-bed"></i> Room Status
+        </a>
+        <a href="{{ url_for('front_desk.create_booking') }}" class="nav-link">
+            <i class="fas fa-calendar-plus"></i> New Booking
+        </a>
+
+        <div class="nav-label">Management</div>
+        <a href="{{ url_for('admin.employees') }}" class="nav-link">
+            <i class="fas fa-users"></i> Employees
+        </a>
+        <a href="{{ url_for('admin.manage_guests') }}" class="nav-link">
+            <i class="fas fa-user-tag"></i> Guests
+        </a>
+        <a href="{{ url_for('reports.analytics_dashboard') }}" class="nav-link">
+            <i class="fas fa-chart-pie"></i> Analytics & BI
+        </a>
+        <a href="{{ url_for('admin.audit_logs') }}" class="nav-link">
+            <i class="fas fa-shield-alt"></i> Security Logs
+        </a>
+
+        <div style="position: absolute; bottom: 20px; width: 100%;">
+            <a href="{{ url_for('auth.logout') }}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; min-height: 100vh;">
+        
+        <div class="top-navbar">
+            <div class="search-bar">
+                <i class="fas fa-search text-muted"></i>
+                <input type="text" placeholder="Search guests, rooms, IDs...">
+            </div>
+
+            <div class="d-flex align-items-center gap-4">
+                <div class="position-relative">
+                    <i class="fas fa-bell text-muted" style="cursor: pointer;"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="text-end" style="line-height: 1.2;">
+                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">Admin User</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">Manager</div>
+                    </div>
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-weight: bold;">
+                        AU
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
