@@ -162,22 +162,78 @@ SECRET_KEY=your_secret_key_here
 FLASK_ENV=development
 ```
 
-### Step 5: Set Up Database
+### Step 5: Set Up Database (MySQL)
 
-1. **Create MySQL Database:**
-   ```sql
-   CREATE DATABASE HotelEase;
-   USE HotelEase;
-   ```
+This project requires a MySQL database. Follow the steps below to create the database, create a dedicated MySQL user, and import the schema, stored procedures, triggers, and optional sample data.
 
-2. **Create Database Schema:**
-   - Run your database initialization script (contact project maintainer)
-   - Or execute SQL files for tables, views, stored procedures, and triggers
+1. **Create the MySQL database and a dedicated user** (run in `mysql` or a client like MySQL Workbench):
 
-3. **Insert Sample Data (Optional):**
-   - Sample users for testing
-   - Sample rooms and room types
-   - Sample guests and bookings
+```sql
+-- create the database with UTF8 support
+CREATE DATABASE HotelEase CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- create a dedicated user (change password to a secure value)
+CREATE USER 'hotease_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+
+-- grant appropriate privileges
+GRANT ALL PRIVILEGES ON HotelEase.* TO 'hotease_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+2. **Prepare SQL files**
+
+Place the SQL files that define your schema, views, stored procedures and triggers into a folder at the project root, for example `sql/`.
+
+Recommended files (examples):
+
+- `sql/schema.sql` — table definitions (Users, Guests, Rooms, Bookings, Services, Employees, AuditLog, etc.)
+- `sql/views.sql` — view definitions (RoomOccupancy, ShiftOverlap, PackagePossibilities)
+- `sql/procs.sql` — stored procedures (CheckAvailability, CompleteBooking)
+- `sql/triggers.sql` — triggers (PreventDoubleBooking, BeforeServiceOrderInsert, LogGuestDeletion)
+- `sql/sample_data.sql` — optional seed/sample data
+
+3. **Import the SQL files**
+
+From the project root you can import each file using the `mysql` client. Replace the username and file paths as appropriate.
+
+```powershell
+# Import schema
+mysql -u hotease_user -p HotelEase < sql/schema.sql
+
+# Import views (if separate)
+mysql -u hotease_user -p HotelEase < sql/views.sql
+
+# Import stored procedures
+mysql -u hotease_user -p HotelEase < sql/procs.sql
+
+# Import triggers
+mysql -u hotease_user -p HotelEase < sql/triggers.sql
+
+# (Optional) Import sample data
+mysql -u hotease_user -p HotelEase < sql/sample_data.sql
+```
+
+4. **Environment variables**
+
+Create or update the `.env` file in the project root with your MySQL connection settings:
+
+```env
+DB_HOST=localhost
+DB_USER=hotease_user
+DB_PASS=your_secure_password
+DB_NAME=HotelEase
+SECRET_KEY=your_secret_key_here
+FLASK_ENV=development
+```
+
+5. **Notes on stored procedures, triggers and views**
+
+- Some routes rely on stored procedures and triggers (e.g. `CompleteBooking`, `PreventDoubleBooking`) — ensure those SQL definitions are imported before testing those features.
+- If you do not have `sql/` files in the repo, ask the project maintainer for the SQL export or generate them from an existing MySQL instance.
+
+6. **Alternative: migrations**
+
+If you prefer to manage schema changes via migrations, add `Flask-Migrate` to the project and create initial migrations. (This README currently assumes direct SQL import.)
 
 ### Step 6: Run the Application
 ```bash
