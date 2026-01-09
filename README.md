@@ -918,4 +918,3 @@ This project is proprietary hotel management software. All rights reserved.
 =======
 # HotelEase
 A comprehensive hotel management system built with Flask and MySQL
->>>>>>> f5118171a380038f0a2ff360edcc984e4e14681c
