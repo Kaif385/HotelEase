@@ -4,35 +4,58 @@ from app import db
 
 auth_bp = Blueprint('auth', __name__)
 
+# -------------------------------------------------
+# Home Route
+# -------------------------------------------------
 @auth_bp.route('/')
 def index():
-    # If user is already logged in, send them to dashboard
+    # If user already logged in → go to dashboard
     if 'user_id' in session:
         return redirect(url_for('admin.dashboard'))
-    # Otherwise, send them to login
+
+    # Otherwise → go to login page
     return redirect(url_for('auth.login'))
 
+
+# -------------------------------------------------
+# Login Route
+# -------------------------------------------------
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
-        # --- Industry Standard: Never store plain text passwords. 
-        # (For this student project, we compare plain text as per your SQL Insert)
-        query = text("SELECT * FROM Users WHERE username = :u AND password = :p")
-        user = db.session.execute(query, {'u': username, 'p': password}).fetchone()
-        
+
+        # Raw SQL query (safe using named parameters)
+        query = text("""
+            SELECT user_id, username, role
+            FROM Users
+            WHERE username = :u AND password = :p
+        """)
+
+        result = db.session.execute(query, {
+            'u': username,
+            'p': password
+        })
+
+        # Convert Row → dict-like object
+        user = result.mappings().fetchone()
+
         if user:
-            session['user_id'] = user.user_id
-            session['role'] = user.role
+            session['user_id'] = user['user_id']
+            session['role'] = user['role']
+
             flash('Login Successful!', 'success')
             return redirect(url_for('admin.dashboard'))
         else:
-            flash('Invalid credentials', 'danger')
-            
+            flash('Invalid username or password', 'danger')
+
     return render_template('auth/login.html')
 
+
+# -------------------------------------------------
+# Logout Route
+# -------------------------------------------------
 @auth_bp.route('/logout')
 def logout():
     session.clear()
